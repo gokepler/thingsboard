@@ -16,6 +16,8 @@
 package org.thingsboard.install.tools;
 
 import lombok.extern.slf4j.Slf4j;
+import org.thingsboard.install.tools.db.DatabaseTool;
+import org.thingsboard.install.tools.db.DatabaseToolFactory;
 
 import java.util.Arrays;
 
@@ -62,6 +64,15 @@ public class InstallTool {
 
     void install(ThingsboardEnvironment environment) throws Exception {
         log.info("Going to install ThingsBoard System Data ...");
+        DatabaseTool dbTool = DatabaseToolFactory.createDatabaseTool(environment);
+        log.info("Creating DB schema ...");
+        dbTool.createDbSchema();
+        log.info("Loading system data ...");
+        dbTool.loadSystemData();
+
+        dbTool.close();
+
+        log.info("Finished!");
     }
 
     void upgrade(ThingsboardEnvironment environment) throws Exception {

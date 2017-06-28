@@ -29,6 +29,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.StandardServletEnvironment;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class ThingsboardEnvironment {
@@ -46,9 +49,18 @@ public class ThingsboardEnvironment {
     private static final String UPGRADE_OPTION = "upgrade";
     private static final String FROM_VERSION_CODE = "fromVersion";
 
+    private static final String DATA_DIR_PROPERTY = "thingsboard.data.dir";
+
+    private static final String JSON_DIR = "json";
+    private static final String SYSTEM_DIR = "system";
+
     private boolean isInstall = false;
     private boolean isUpgrade = false;
     private String upgradeFromVersion;
+
+    private String dataDir;
+    private String jsonDir;
+    private String systemJsonDir;
 
     private ConfigurableEnvironment environment;
     private ApplicationArguments applicationArguments;
@@ -66,6 +78,14 @@ public class ThingsboardEnvironment {
         this.resourceLoader = new DefaultResourceLoader();
         this.propertiesLoader = new PropertySourcesLoader();
         prepareEnvironment();
+
+        this.dataDir = getProperty(DATA_DIR_PROPERTY);
+        if (this.dataDir == null) {
+            throw new RuntimeException("'" + DATA_DIR_PROPERTY + "' property should specified!");
+        }
+        if (!Files.isDirectory(Paths.get(this.dataDir))) {
+            throw new RuntimeException("'" + DATA_DIR_PROPERTY + "' property value is not valid directory!");
+        }
     }
 
     private void processArguments() {
